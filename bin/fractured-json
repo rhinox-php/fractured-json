@@ -1,0 +1,315 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+// Find autoloader
+$autoloadPaths = [
+    __DIR__ . '/../vendor/autoload.php',
+    __DIR__ . '/../../../autoload.php',
+];
+
+$autoloaderFound = false;
+foreach ($autoloadPaths as $autoloadPath) {
+    if (file_exists($autoloadPath)) {
+        require $autoloadPath;
+        $autoloaderFound = true;
+        break;
+    }
+}
+
+if (!$autoloaderFound) {
+    fwrite(STDERR, "Error: Could not find Composer autoloader. Run 'composer install' first.\n");
+    exit(1);
+}
+
+use Rhinox\FracturedJson\Enums\CommentPolicy;
+use Rhinox\FracturedJson\Enums\EolStyle;
+use Rhinox\FracturedJson\Enums\NumberListAlignment;
+use Rhinox\FracturedJson\Formatting\Formatter;
+use Rhinox\FracturedJson\Formatting\FracturedJsonOptions;
+
+/**
+ * FracturedJson CLI - Format JSON files with intelligent formatting
+ */
+class FracturedJsonCli
+{
+    private array $files = [];
+    private FracturedJsonOptions $options;
+    private bool $inPlace = false;
+    private bool $minify = false;
+    private bool $showHelp = false;
+    private bool $showVersion = false;
+
+    public function __construct()
+    {
+        $this->options = new FracturedJsonOptions();
+    }
+
+    public function run(array $argv): int
+    {
+        $this->parseArguments($argv);
+
+        if ($this->showHelp) {
+            $this->printHelp();
+            return 0;
+        }
+
+        if ($this->showVersion) {
+            $this->printVersion();
+            return 0;
+        }
+
+        try {
+            if (empty($this->files)) {
+                // Read from stdin
+                return $this->processStdin();
+            }
+
+            return $this->processFiles();
+        } catch (Throwable $e) {
+            fwrite(STDERR, "Error: {$e->getMessage()}\n");
+            return 1;
+        }
+    }
+
+    private function parseArguments(array $argv): void
+    {
+        // Remove script name
+        array_shift($argv);
+
+        while (count($argv) > 0) {
+            $arg = array_shift($argv);
+
+            switch ($arg) {
+                case '-h':
+                case '--help':
+                    $this->showHelp = true;
+                    return;
+
+                case '-v':
+                case '--version':
+                    $this->showVersion = true;
+                    return;
+
+                case '-i':
+                case '--in-place':
+                    $this->inPlace = true;
+                    break;
+
+                case '-m':
+                case '--minify':
+                    $this->minify = true;
+                    break;
+
+                case '-c':
+                case '--comments':
+                    $this->options->commentPolicy = CommentPolicy::Preserve;
+                    break;
+
+                case '--indent':
+                    $value = array_shift($argv);
+                    if ($value === null || !is_numeric($value)) {
+                        throw new InvalidArgumentException("--indent requires a numeric value");
+                    }
+                    $this->options->indentSpaces = (int) $value;
+                    break;
+
+                case '--tabs':
+                    $this->options->useTabToIndent = true;
+                    break;
+
+                case '--max-line-length':
+                    $value = array_shift($argv);
+                    if ($value === null || !is_numeric($value)) {
+                        throw new InvalidArgumentException("--max-line-length requires a numeric value");
+                    }
+                    $this->options->maxTotalLineLength = (int) $value;
+                    break;
+
+                case '--max-inline-complexity':
+                    $value = array_shift($argv);
+                    if ($value === null || !is_numeric($value)) {
+                        throw new InvalidArgumentException("--max-inline-complexity requires a numeric value");
+                    }
+                    $this->options->maxInlineComplexity = (int) $value;
+                    break;
+
+                case '--expand-depth':
+                    $value = array_shift($argv);
+                    if ($value === null || !is_numeric($value)) {
+                        throw new InvalidArgumentException("--expand-depth requires a numeric value");
+                    }
+                    $this->options->alwaysExpandDepth = (int) $value;
+                    break;
+
+                case '--crlf':
+                    $this->options->jsonEolStyle = EolStyle::Crlf;
+                    break;
+
+                case '--no-bracket-padding':
+                    $this->options->nestedBracketPadding = false;
+                    $this->options->simpleBracketPadding = false;
+                    break;
+
+                case '--simple-bracket-padding':
+                    $this->options->simpleBracketPadding = true;
+                    break;
+
+                case '--number-align':
+                    $value = array_shift($argv);
+                    $this->options->numberListAlignment = match (strtolower($value ?? '')) {
+                        'left' => NumberListAlignment::Left,
+                        'right' => NumberListAlignment::Right,
+                        'decimal' => NumberListAlignment::Decimal,
+                        'normalize' => NumberListAlignment::Normalize,
+                        default => throw new InvalidArgumentException(
+                            "--number-align must be: left, right, decimal, or normalize"
+                        ),
+                    };
+                    break;
+
+                case '--preserve-blank-lines':
+                    $this->options->preserveBlankLines = true;
+                    break;
+
+                case '--trailing-commas':
+                    $this->options->allowTrailingCommas = true;
+                    break;
+
+                case '-':
+                    // Explicit stdin marker, will be handled by empty files check
+                    break;
+
+                default:
+                    if (str_starts_with($arg, '-')) {
+                        throw new InvalidArgumentException("Unknown option: {$arg}");
+                    }
+                    $this->files[] = $arg;
+                    break;
+            }
+        }
+    }
+
+    private function processStdin(): int
+    {
+        $input = stream_get_contents(STDIN);
+        if ($input === false) {
+            fwrite(STDERR, "Error: Failed to read from stdin\n");
+            return 1;
+        }
+
+        $output = $this->format($input);
+        echo $output;
+        return 0;
+    }
+
+    private function processFiles(): int
+    {
+        $exitCode = 0;
+
+        foreach ($this->files as $file) {
+            if (!file_exists($file)) {
+                fwrite(STDERR, "Error: File not found: {$file}\n");
+                $exitCode = 1;
+                continue;
+            }
+
+            $input = file_get_contents($file);
+            if ($input === false) {
+                fwrite(STDERR, "Error: Failed to read file: {$file}\n");
+                $exitCode = 1;
+                continue;
+            }
+
+            try {
+                $output = $this->format($input);
+
+                if ($this->inPlace) {
+                    if (file_put_contents($file, $output) === false) {
+                        fwrite(STDERR, "Error: Failed to write file: {$file}\n");
+                        $exitCode = 1;
+                    }
+                } else {
+                    echo $output;
+                }
+            } catch (Throwable $e) {
+                fwrite(STDERR, "Error processing {$file}: {$e->getMessage()}\n");
+                $exitCode = 1;
+            }
+        }
+
+        return $exitCode;
+    }
+
+    private function format(string $input): string
+    {
+        $formatter = new Formatter($this->options);
+
+        if ($this->minify) {
+            return $formatter->minify($input);
+        }
+
+        return $formatter->reformat($input);
+    }
+
+    private function printHelp(): void
+    {
+        echo <<<'HELP'
+FracturedJson - Format JSON with intelligent line breaks and alignment
+
+Usage:
+  fractured-json [options] [files...]
+  cat file.json | fractured-json [options]
+
+Options:
+  -h, --help                 Show this help message
+  -v, --version              Show version information
+  -i, --in-place             Modify files in place (requires file arguments)
+  -m, --minify               Minify instead of format
+  -c, --comments             Preserve comments (JSONC support)
+
+Formatting Options:
+  --indent <n>               Spaces per indent level (default: 4)
+  --tabs                     Use tabs instead of spaces for indentation
+  --max-line-length <n>      Maximum line length (default: 120)
+  --max-inline-complexity <n> Max nesting for inline arrays/objects (default: 2)
+  --expand-depth <n>         Depth at which to always expand (-1 = none)
+  --crlf                     Use CRLF line endings instead of LF
+  --no-bracket-padding       No spaces inside brackets
+  --simple-bracket-padding   Add spaces inside simple brackets
+  --number-align <mode>      Number alignment: left, right, decimal, normalize
+  --preserve-blank-lines     Keep blank lines from input
+  --trailing-commas          Allow trailing commas in input
+
+Examples:
+  # Format a file and print to stdout
+  fractured-json data.json
+
+  # Format multiple files in place
+  fractured-json -i *.json
+
+  # Format from stdin
+  echo '{"a":1,"b":2}' | fractured-json
+
+  # Format with comments preserved
+  fractured-json -c config.jsonc
+
+  # Minify a file
+  fractured-json -m data.json
+
+  # Custom formatting
+  fractured-json --indent 2 --max-line-length 80 data.json
+
+HELP;
+    }
+
+    private function printVersion(): void
+    {
+        echo "FracturedJson PHP 1.0.0\n";
+    }
+}
+
+// Run CLI
+$cli = new FracturedJsonCli();
+exit($cli->run($argv));

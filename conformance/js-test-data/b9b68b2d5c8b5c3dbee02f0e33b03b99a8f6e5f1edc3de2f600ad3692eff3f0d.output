@@ -1,0 +1,5 @@
+{
+    /*1*/ "a": [true,  true ] /*2*/,
+          "b": [false, false],
+    /*3*/ "c": [false, true ] /*4*/
+}

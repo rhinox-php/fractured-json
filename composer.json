@@ -1,0 +1,39 @@
+{
+    "name": "rhinox/fractured-json",
+    "description": "JSON formatter that produces highly readable but fairly compact output",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "JSON",
+        "JSONC",
+        "formatter",
+        "pretty printer",
+        "beautifier",
+        "stringify",
+        "compact",
+        "comments"
+    ],
+    "require": {
+        "php": ">=8.4",
+        "ext-mbstring": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Rhinox\\FracturedJson\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Rhinox\\FracturedJson\\Tests\\": "tests/"
+        }
+    },
+    "bin": [
+        "bin/fractured-json"
+    ],
+    "scripts": {
+        "test": "phpunit"
+    }
+}

@@ -1,0 +1,5 @@
+{
+    "Rect" : { "glow": "steady", "position": {"x": -44, "y":  4}, "color": [0, 255, 255] }, 
+    "Point": { "glow": "pulse", "position": {"y": 22, "z": 3} }, 
+    "Oval" : { "glow": "gradient", "position": {"x": 140.33, "y":  0.1}, "color": "#7f3e96" }  
+}

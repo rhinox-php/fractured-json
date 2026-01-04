@@ -1,0 +1,6 @@
+{
+"Firetruck": /* red */ { "color": "#CC0000" }, 
+"Dumptruck": /* yellow */ { "color": [255, 255, 0] }, 
+"Godzilla": /* green */  { "color": "#336633" },  // Not a truck
+/* ! */ "F150": { "color": null } 
+}

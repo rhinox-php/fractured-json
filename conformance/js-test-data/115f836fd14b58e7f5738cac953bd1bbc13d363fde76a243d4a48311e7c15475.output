@@ -1,0 +1,7 @@
+{
+    "foo": /* this is foo */ [
+        1, 2, 4
+    ],
+    "bar": null,
+    "bazzzz": /* this is baz */ [0]
+}

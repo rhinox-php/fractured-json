@@ -1,0 +1,84 @@
+{
+    "BannerText"  : [
+        "Sometimes you'll have to protect multiple enemy goals."
+    ],
+    "AttackPlans" : [
+        {
+            "TeamId": 1,
+            "Spawns": [
+                {
+                    "Time": 0,
+                    "UnitType": "Grunt",
+                    "SpawnPointIndex": 0
+                },
+                {
+                    "Time": 0,
+                    "UnitType": "Grunt",
+                    "SpawnPointIndex": 0
+                },
+                {
+                    "Time": 0,
+                    "UnitType": "Grunt",
+                    "SpawnPointIndex": 0
+                },
+
+                {
+                    "Time": 0,
+                    "UnitType": "Grunt",
+                    "SpawnPointIndex": 0
+                },
+                {
+                    "Time": 0,
+                    "UnitType": "Grunt",
+                    "SpawnPointIndex": 0
+                }
+            ]
+        },
+        {
+            "TeamId": 2,
+            "Spawns": [
+                null,
+                null
+            ]
+        }
+    ],
+
+
+    "DefensePlans": [
+        {
+            "TeamId"    : 2,
+            "Placements": [
+                {
+                    "UnitType": "Archer",
+                    "Position": [
+                        41,
+                         7
+                    ]
+                },
+                {
+                    "UnitType": "Archer",
+                    "Position": [
+                        41,
+                         8
+                    ]
+                },
+
+                {
+                    "UnitType": "Archer",
+                    "Position": [
+                        41,
+                         9
+                    ]
+                },
+                {
+                    "UnitType": "Pikeman",
+                    "Position": [
+                        40,
+                         9
+                    ]
+                }
+            ]
+        }
+    ]
+}
+

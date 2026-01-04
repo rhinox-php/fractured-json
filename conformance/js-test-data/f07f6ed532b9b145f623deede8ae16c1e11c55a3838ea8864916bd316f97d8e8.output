@@ -1,0 +1,46 @@
+{
+    "NumbersWithHex"   : [
+          254,  1450,     0, 36000,
+           10,   199, 15001,  6540
+    ],
+    "NumbersWithHexKVP": {
+        "254"  : ["alpha"  ],
+        "1450" : ["beta"   ],
+        "0"    : ["gamma"  ],
+        "36000": ["delta"  ],
+        "10"   : ["epsilon"],
+        "199"  : ["zeta"   ],
+        "15001": ["eta"    ],
+        "6540" : ["theta"  ]
+    },
+
+    "Elements"         : [
+        {
+            "Symbol"  : "C",
+            "Number"  : 6,
+            "Isotopes": [11, 12, 13, 14]
+        },
+        {
+            "Symbol"  : "O",
+            "Number"  : 8,
+            "Isotopes": [16, 18, 17]
+        },
+        {
+            "Symbol"  : "H",
+            "Number"  : 1,
+            "Isotopes": [1, 2, 3]
+        },
+        {
+            "Symbol"  : "Fe",
+            "Number"  : 26,
+            "Isotopes": [56, 54, 57, 58]
+        }
+    ],
+
+    "Beatles Songs"    : [
+        "Taxman",
+        "Hey Jude",
+        "Act Naturally",
+        "Ticket To Ride"
+    ]
+}

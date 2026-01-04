@@ -1,0 +1,58 @@
+{
+    /*
+     * Multi-line comments
+     * are fun!
+     */
+    "NumbersWithHex"   : [
+        254 /*00FE*/,
+        1450 /*5AA*/,
+        0 /*0*/,
+        36000 /*8CA0*/,
+        10 /*0A*/,
+        199 /*C7*/,
+        15001 /*3A99*/,
+        6540 /*198C*/
+    ],
+    "NumbersWithHexKVP": {
+        "254"  : /*FE*/   ["alpha"],
+        "1450" : /*5AA*/  ["beta"],
+        "0"    : /*0*/    ["gamma"],
+        "36000": /*8CA0*/ ["delta"],
+        "10"   : /*0A*/   ["epsilon"],
+        "199"  : /*C7*/   ["zeta"],
+        "15001": /*3A99*/ ["eta"],
+        "6540" : /*198C*/ ["theta"]
+    },
+
+    /* Elements are keen */
+    "Elements"         : [
+        {
+            /*Carbon*/ "Symbol"  : "C",
+                       "Number"  : 6,
+                       "Isotopes": [11, 12, 13, 14]
+        },
+        {
+            /*Oxygen*/ "Symbol"  : "O",
+                       "Number"  : 8,
+                       "Isotopes": [16, 18, 17]
+        },
+        {
+            /*Hydrogen*/ "Symbol"  : "H",
+                         "Number"  : 1,
+                         "Isotopes": [1, 2, 3]
+        },
+        {
+            /*Iron*/ "Symbol"  : "Fe",
+                     "Number"  : 26,
+                     "Isotopes": [56, 54, 57, 58]
+        }
+        // Not a complete list...
+    ],
+
+    "Beatles Songs"    : [
+        "Taxman",  // George
+        "Hey Jude",  // Paul
+        "Act Naturally",  // Ringo
+        "Ticket To Ride" // John
+    ]
+}
